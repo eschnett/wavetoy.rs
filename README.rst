@@ -1,5 +1,5 @@
-WaveToy Rust <https://github.com/eschnett/wavetoy.rs>`__
-========================================================
+WaveToy in Rust
+===============
 
 |Build Status| |Coverage Status|
 
