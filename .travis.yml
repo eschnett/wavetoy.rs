@@ -6,7 +6,7 @@ language: rust
 rust:
   - stable
 
-cache: .cargo
+cache: cargo
 
 # Install dependencies
 install: |
