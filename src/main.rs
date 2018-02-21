@@ -11,10 +11,12 @@ fn main() {
     let mut iter = 0;
     let mut s = w::init(0.0, n);
     w::output(iter, &s);
+    w::output_hdf5(iter, &s);
     for _ in 0..niters {
         iter = iter + 1;
         s = w::step(&s, dt);
     }
     w::output(iter, &s);
+    w::output_hdf5(iter, &s);
     println!("Done.")
 }
