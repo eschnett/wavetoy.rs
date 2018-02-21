@@ -12,7 +12,9 @@ cache: cargo
 install: |
   cargo build --verbose
   if [ "$TRAVIS_RUST_VERSION" = stable ]; then
-    cargo install cargo-tarpaulin
+    if [ ! -f "$HOME/.cargo/bin/cargo-tarpaulin" ]; then
+      cargo install cargo-tarpaulin
+    fi
   fi
 
 # Build and test
