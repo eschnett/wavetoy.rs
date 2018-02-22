@@ -1,27 +1,15 @@
 extern crate hdf5_sys;
 extern crate libc;
 
-pub mod wavetoy {
 
-    use std::f64;
+
+pub mod hdf5io {
+
     use std::ffi;
     use libc;
     use hdf5_sys as hdf5;
 
-    pub struct State {
-        time: f64,
-        u: Vec<f64>,
-        udot: Vec<f64>,
-    }
 
-    pub fn output(iter: i64, s: &State)
-    {
-        println!("Iteration {}, time {}", iter, s.time);
-        let n = s.u.len();
-        for i in 0..n {
-            println!("    {}: {} {}", i, s.u[i], s.udot[i]);
-        }
-    }
 
     // Low-level functions
 
@@ -115,7 +103,7 @@ pub mod wavetoy {
 
     // High-level functions
 
-    unsafe fn with_file<F>(name: &str, do_create: bool, run: F)
+    pub unsafe fn with_file<F>(name: &str, do_create: bool, run: F)
         where F: Fn(hdf5::hid_t)
     {
         let file = if do_create {
@@ -127,7 +115,7 @@ pub mod wavetoy {
         close_file(file);
     }
 
-    unsafe fn with_group<F>(location: hdf5::hid_t, name: &str, run: F)
+    pub unsafe fn with_group<F>(location: hdf5::hid_t, name: &str, run: F)
         where F: Fn(hdf5::hid_t)
     {
         let group = create_group(location, name);
@@ -135,7 +123,7 @@ pub mod wavetoy {
         close_group(group);
     }
 
-    unsafe fn attach_dataset_f64(location: hdf5::hid_t, name: &str,
+    pub unsafe fn attach_dataset_f64(location: hdf5::hid_t, name: &str,
                                  data: &Vec<f64>) {
         let npoints = data.len();
         let dataspace = create_simple_dataspace(npoints);
@@ -146,7 +134,7 @@ pub mod wavetoy {
         close_dataspace(dataspace);
     }
 
-    unsafe fn attach_attribute_i64(location: hdf5::hid_t, name: &str,
+    pub unsafe fn attach_attribute_i64(location: hdf5::hid_t, name: &str,
                                    value: i64) {
         let cname = ffi::CString::new(name).unwrap();
         let attr_type = hdf5::H5T_NATIVE_INT64;
@@ -167,7 +155,7 @@ pub mod wavetoy {
         assert!(herr >= 0);
     }
 
-    unsafe fn attach_attribute_f64(location: hdf5::hid_t, name: &str,
+    pub unsafe fn attach_attribute_f64(location: hdf5::hid_t, name: &str,
                                    value: f64) {
         let cname = ffi::CString::new(name).unwrap();
         let attr_type = hdf5::H5T_NATIVE_DOUBLE;
@@ -188,16 +176,41 @@ pub mod wavetoy {
         assert!(herr >= 0);
     }
 
+}
+
+
+
+pub mod wavetoy {
+
+    use std::f64;
+    use hdf5_sys as hdf5;
+    use hdf5io;
+
+    pub struct State {
+        time: f64,
+        u: Vec<f64>,
+        udot: Vec<f64>,
+    }
+
+    pub fn output(iter: i64, s: &State)
+    {
+        println!("Iteration {}, time {}", iter, s.time);
+        let n = s.u.len();
+        for i in 0..n {
+            println!("    {}: {} {}", i, s.u[i], s.udot[i]);
+        }
+    }
+
     pub fn output_hdf5(iter: i64, s: &State) {
         println!("HDF5 output at iteration {}, time {}", iter, s.time);
         unsafe {
-            with_file("wavetoy.h5", iter == 0, |file: hdf5::hid_t| {
+            hdf5io::with_file("wavetoy.h5", iter == 0, |file: hdf5::hid_t| {
                 let groupname = format!("wavetoy.iteration-{:010}", iter);
-                with_group(file, &groupname, |group: hdf5::hid_t| {
-                    attach_attribute_i64(group, "iteration", iter);
-                    attach_attribute_f64(group, "time", s.time);
-                    attach_dataset_f64(group, "u", &s.u);
-                    attach_dataset_f64(group, "udot", &s.udot);
+                hdf5io::with_group(file, &groupname, |group: hdf5::hid_t| {
+                    hdf5io::attach_attribute_i64(group, "iteration", iter);
+                    hdf5io::attach_attribute_f64(group, "time", s.time);
+                    hdf5io::attach_dataset_f64(group, "u", &s.u);
+                    hdf5io::attach_dataset_f64(group, "udot", &s.udot);
                 });
             });
         }
