@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Erik Schnetter <schnetter@gmail.com>"]
 
 [dependencies]
+hdf5 = "0.4.1"
 hdf5-sys = "0.4.1"
 libc = "0.2.36"
 # numeric = "0.1.4"

@@ -19,6 +19,10 @@ pub mod hdf5io {
         let flags = hdf5::H5F_ACC_TRUNC;
         let fcpl = hdf5::H5P_DEFAULT;
         let fapl = hdf5::H5P_DEFAULT;
+        // let fcpl = hdf5::H5Pcreate(hdf5::H5P_FILE_CREATE);
+        // let fapl = hdf5::H5Pcreate(hdf5::H5P_FILE_ACCESS);
+        // let fcpl = hdf5::H5Pcreate(hdf5::H5P_CLS_FILE_CREATE_ID_g);
+        // let fapl = hdf5::H5Pcreate(hdf5::H5P_CLS_FILE_ACCESS_ID_g);
         let file = hdf5::H5Fcreate(cname.as_ptr(), flags, fcpl, fapl);
         assert!(file >= 0);
         return file;
